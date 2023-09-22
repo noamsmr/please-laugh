@@ -1,0 +1,23 @@
+* {
+    font-family: 'Times New Roman';
+}
+
+body {
+    margin: 0;
+}
+
+.laugh-button {
+    width: 100%;
+    height: 100vh;
+    background-color: #86b55f;
+    border: none;
+    font-size: 20vw;
+    color: #fffe93;
+    cursor: pointer;
+}
+
+.laugh-button:active {
+    background-color: #ea5ef1;
+    color: #00fff7;
+    cursor: help;
+}
