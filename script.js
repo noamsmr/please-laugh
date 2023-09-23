@@ -11,40 +11,40 @@ const FADE_LENGTH = 2;
 let previousAudio;
 let currentAudio;
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const img = new Image;
-const lastImgNumber = 20;
-const fps = 30
-let imgNumber = 1;
+// const canvas = document.getElementById('canvas');
+// const ctx = canvas.getContext('2d');
+// const img = new Image;
+// const lastImgNumber = 20;
+// const fps = 30
+// let imgNumber = 1;
 
 
 
-// --- Animation ---
+// // --- Animation ---
 
-img.onload = function(){
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.drawImage(img, 0, 0);
-};
+// img.onload = function(){
+//     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+//     ctx.drawImage(img, 0, 0);
+// };
 
-img.src = "frames/frame_" + (imgNumber) + ".jpg";
+// img.src = "frames/frame_" + (imgNumber) + ".jpg";
 
-function animateToFrame(targetFrame) {
-    if (targetFrame === imgNumber) {
-        return;
-    }
+// function animateToFrame(targetFrame) {
+//     if (targetFrame === imgNumber) {
+//         return;
+//     }
 
-    const step = imgNumber < targetFrame ? 1 : -1;
+//     const step = imgNumber < targetFrame ? 1 : -1;
 
-    let timer = setInterval( function(){
-        if (imgNumber === targetFrame){
-            clearInterval(timer);
-        } else {
-            imgNumber = imgNumber + step;
-            img.src = "frames/frame_" + (imgNumber) + ".jpg";
-        }
-    }, 1000 / fps);
-}
+//     let timer = setInterval( function(){
+//         if (imgNumber === targetFrame){
+//             clearInterval(timer);
+//         } else {
+//             imgNumber = imgNumber + step;
+//             img.src = "frames/frame_" + (imgNumber) + ".jpg";
+//         }
+//     }, 1000 / fps);
+// }
 
 
 
@@ -53,7 +53,7 @@ function animateToFrame(targetFrame) {
 laughButton.addEventListener("click", (event) => {
     const nextAudio = getRandomAudio(previousAudio, currentAudio);
 
-    animateToFrame(getRandomInt(19) + 1);
+    // animateToFrame(getRandomInt(19) + 1);
 
     fadeOut(currentAudio)
 
