@@ -1,16 +1,59 @@
-const audio1 = new Audio('laugh1.mp3');
-const audio2 = new Audio('laugh2.mp3');
-const audio3 = new Audio('laugh3.mp3');
-const audio4 = new Audio('laugh4.mp3');
-const audio5 = new Audio('laugh5.mp3');
-const audio6 = new Audio('laugh6.mp3');
+const audios = [
+    new Audio('audio/laugh1.mp3'),
+    new Audio('audio/laugh2.mp3'),
+    new Audio('audio/laugh3.mp3'),
+    new Audio('audio/laugh4.mp3'),
+    new Audio('audio/laugh5.mp3'),
+    new Audio('audio/laugh6.mp3')
+]
 const laughButton = document.querySelector("#laughButton");
 const FADE_LENGTH = 2;
 let previousAudio;
 let currentAudio;
 
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const img = new Image;
+const lastImgNumber = 20;
+const fps = 30
+let imgNumber = 1;
+
+
+
+// --- Animation ---
+
+img.onload = function(){
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(img, 0, 0);
+};
+
+img.src = "frames/frame_" + (imgNumber) + ".jpg";
+
+function animateToFrame(targetFrame) {
+    if (targetFrame === imgNumber) {
+        return;
+    }
+
+    const step = imgNumber < targetFrame ? 1 : -1;
+
+    let timer = setInterval( function(){
+        if (imgNumber === targetFrame){
+            clearInterval(timer);
+        } else {
+            imgNumber = imgNumber + step;
+            img.src = "frames/frame_" + (imgNumber) + ".jpg";
+        }
+    }, 1000 / fps);
+}
+
+
+
+// --- Button listen ---
+
 laughButton.addEventListener("click", (event) => {
     const nextAudio = getRandomAudio(previousAudio, currentAudio);
+
+    animateToFrame(getRandomInt(19) + 1);
 
     fadeOut(currentAudio)
 
@@ -43,7 +86,6 @@ function fadeOut(audio) {
     const volDecrease = 0.1 / FADE_LENGTH;
     let volume = audio.volume;
     
-
     const intervId = setInterval(() => {
         volume = volume - volDecrease;
 
@@ -58,22 +100,22 @@ function fadeOut(audio) {
 
 function getNextAudio(audio) {
     if (!audio) {
-        return audio1;
+        return audios[0];
     }
 
     switch (getFilename(audio.src)) {
         case 'laugh1.mp3':
-            return audio2;
+            return audios[1];
         case 'laugh2.mp3':
-            return audio3;
+            return audios[2];
         case 'laugh3.mp3':
-            return audio4;
+            return audios[3];
         case 'laugh4.mp3':
-            return audio5;
+            return audios[4];
         case 'laugh5.mp3':
-            return audio6;
+            return audios[5];
         case 'laugh6.mp3':
-            return audio1;
+            return audios[0];
         default:
             return 0;
     }
@@ -84,22 +126,22 @@ function getRandomAudio(previousAudio, currentAudio) {
 
     switch (getRandomInt(6)) {
         case 0:
-            audio = audio2;
+            audio = audios[1];
             break;
         case 1:
-            audio = audio3;
+            audio = audios[2];
             break;
         case 2:
-            audio = audio4;
+            audio = audios[3];
             break;
         case 3:
-            audio = audio5;
+            audio = audios[4];
             break;
         case 4:
-            audio = audio6;
+            audio = audios[5];
             break;
         case 5:
-            audio = audio1;
+            audio = audios[0];
             break;
         default:
     }
