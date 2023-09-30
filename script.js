@@ -1,3 +1,10 @@
+
+
+
+// --- Audio ---
+
+const AUDIO_FADE_OUT_LENGTH = 2;
+const BUFFER_MULTIPLIER = 1;
 const audios = [
     new Audio('audio/laugh1.mp3'),
     new Audio('audio/laugh2.mp3'),
@@ -6,63 +13,29 @@ const audios = [
     new Audio('audio/laugh5.mp3'),
     new Audio('audio/laugh6.mp3')
 ]
-const laughButton = document.querySelector("#laughButton");
-const FADE_LENGTH = 2;
-let previousAudio;
+let isAudioCtxInit = false;
+let sampleBuffer;
 let currentAudio;
+let previousAudio;
 
-// const canvas = document.getElementById('canvas');
-// const ctx = canvas.getContext('2d');
-// const img = new Image;
-// const lastImgNumber = 20;
-// const fps = 30
-// let imgNumber = 1;
+const setupAudioAPIAndAnimation = () => {
+    if (isAudioCtxInit) { return }
 
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.smoothingTimeConstant = 0.8;
+    analyser.fftSize = 1024 * BUFFER_MULTIPLIER;
+    sampleBuffer = new Float32Array(analyser.fftSize);
+    audios.forEach(audio => {
+        const source = audioCtx.createMediaElementSource(audio);
+        source.connect(analyser);
+    });
+    analyser.connect(audioCtx.destination);
 
-
-// // --- Animation ---
-
-// img.onload = function(){
-//     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-//     ctx.drawImage(img, 0, 0);
-// };
-
-// img.src = "frames/frame_" + (imgNumber) + ".jpg";
-
-// function animateToFrame(targetFrame) {
-//     if (targetFrame === imgNumber) {
-//         return;
-//     }
-
-//     const step = imgNumber < targetFrame ? 1 : -1;
-
-//     let timer = setInterval( function(){
-//         if (imgNumber === targetFrame){
-//             clearInterval(timer);
-//         } else {
-//             imgNumber = imgNumber + step;
-//             img.src = "frames/frame_" + (imgNumber) + ".jpg";
-//         }
-//     }, 1000 / fps);
-// }
-
-
-
-// --- Button listen ---
-
-laughButton.addEventListener("click", (event) => {
-    const nextAudio = getRandomAudio(previousAudio, currentAudio);
-
-    // animateToFrame(getRandomInt(19) + 1);
-
-    fadeOut(currentAudio)
-
-    nextAudio.volume = 1;
-    play(nextAudio);
-
-    previousAudio = currentAudio;
-    currentAudio = nextAudio;
-});
+    window.requestAnimationFrame(step)
+    
+    isAudioCtxInit = true;
+}
 
 function play(audio) {
     audio.play();
@@ -74,16 +47,12 @@ function stop(audio) {
     audio.volume = 1;
 }
 
-function fadeIn() {
-    
-}
-
 function fadeOut(audio) {
     if (!audio) {
         return;
     }
 
-    const volDecrease = 0.1 / FADE_LENGTH;
+    const volDecrease = 0.1 / AUDIO_FADE_OUT_LENGTH;
     let volume = audio.volume;
     
     const intervId = setInterval(() => {
@@ -160,3 +129,94 @@ function getFilename(fullPath) {
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
+
+
+
+// --- Animation ---
+
+const NUMBER_OF_FRAMES = 20;
+const ANIMATION_TIMEOUT = 100000;
+const compressionFunction = (x) => 0.23 * Math.pow(x, 1/4)
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const img = new Image;
+let imgNumber = 20;
+let start, previousTimeStamp;
+let elapsedFrameDelay = 0;
+let previousFrameNember = 1;
+
+img.onload = function(){
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(img, 0, 0);
+};
+
+setSadImgNum(imgNumber);
+
+function step(timeStamp) {
+    if (start === undefined) {
+        start = timeStamp;
+    }
+    const elapsed = timeStamp - start;
+
+    if (previousTimeStamp !== timeStamp) {
+        analyser.getFloatTimeDomainData(sampleBuffer);
+        let sumOfSquares = 0;
+        for (let i = 0; i < sampleBuffer.length; i++) {
+            sumOfSquares += sampleBuffer[i] ** 2;
+        }
+        let frameNumber = Math.floor(compressionFunction(sumOfSquares) * NUMBER_OF_FRAMES) + 20;
+
+        if (previousFrameNember < frameNumber) {
+            elapsedFrameDelay = elapsed + 100;
+            setSadImgNum(frameNumber);
+            previousFrameNember = frameNumber
+        } else if (elapsed > elapsedFrameDelay) {
+            elapsedFrameDelay = elapsed + 100;
+            frameNumber = previousFrameNember > 20 ? previousFrameNember - 1 : 20;
+            setSadImgNum(frameNumber);
+            previousFrameNember = frameNumber
+        }
+    }
+
+    // if (elapsed < ANIMATION_TIMEOUT) {
+        previousTimeStamp = timeStamp;
+        window.requestAnimationFrame(step);
+    // }
+}
+
+function setHappyImgNum(number) {
+    if (number > NUMBER_OF_FRAMES || number < 0 || number%1 !== 0) {
+        console.warn('No such frame number:', number);
+        return;
+    }
+    img.src = "frames/happy_frame_" + (number) + ".jpg";
+}
+
+function setSadImgNum(number) {
+    if (number > NUMBER_OF_FRAMES + 20 || number < 20 || number%1 !== 0) {
+        console.warn('No such frame number:', number);
+        return;
+    }
+    img.src = "frames/sad_frame_" + (number) + ".jpg";
+}
+
+
+
+// --- Button listen ---
+
+const laughButton = document.querySelector("#laugh-button");
+
+laughButton.addEventListener("click", (event) => {
+    setupAudioAPIAndAnimation();
+
+    const nextAudio = getRandomAudio(previousAudio, currentAudio);
+    if (!(currentAudio == nextAudio)) {
+        fadeOut(currentAudio)
+    }
+
+    nextAudio.volume = 1;
+    play(nextAudio);
+
+    previousAudio = currentAudio;
+    currentAudio = nextAudio;
+});
