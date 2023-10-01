@@ -18,6 +18,13 @@ let sampleBuffer;
 let currentAudio;
 let previousAudio;
 
+window.onload = function() {
+    isInvert = JSON.parse(localStorage.getItem("isInvert"));
+    if (isInvert === null) { return }
+    
+    setInvertedTheme(isInvert);
+}
+
 const setupAudioAPIAndAnimation = () => {
     if (isAudioCtxInit) { return }
 
@@ -231,6 +238,10 @@ laughButton.addEventListener("click", (event) => {
 invertButton.addEventListener("click", () => {
     isInvert = !isInvert;
 
+    setInvertedTheme(isInvert);
+})
+
+function setInvertedTheme(isInvert) {
     if (!isInvert) {
         previousFrameNember = 0
         ctx.filter = 'none'
@@ -240,6 +251,8 @@ invertButton.addEventListener("click", () => {
         laughButton.classList.remove("invert-laugh");
         invertButton.classList.remove("invert-invert");
         laughButton.innerHTML = "אנא צחק";
+
+        localStorage.setItem("isInvert", "false");
     } else {
         ctx.filter = 'invert(1)'
         ctx.drawImage(img, 0, 0)
@@ -247,8 +260,8 @@ invertButton.addEventListener("click", () => {
         container.classList.add("invert-container");
         laughButton.classList.add("invert-laugh");
         invertButton.classList.add("invert-invert");
-        laughButton.innerHTML = "אל-נא צחק";
+        laughButton.innerHTML = "אל נא צחק";
+
+        localStorage.setItem("isInvert", "true");
     }
-
-
-})
+}
