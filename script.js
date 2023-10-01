@@ -21,8 +21,8 @@ let previousFrameNember = 0;
 const happyFrames = []
 const sadFrames = []
 let currentFrame;
-const laughButton = document.querySelector("#laugh-button");
 const invertButton = document.querySelector("#invert-button");
+const text = document.querySelector("#text");
 const container = document.querySelector("#container");
 loadAudioFiles();
 loadImageFiles();
@@ -259,7 +259,7 @@ function drawFrame(frameNumber) {
 
 // --- Button listen ---
 
-laughButton.addEventListener("click", (event) => {
+canvas.addEventListener("click", (event) => {
     setupAudioAPI();
     startAnimation();
 
@@ -288,9 +288,9 @@ function setInvertedTheme(isInvert) {
         ctx.drawImage(currentFrame, 0, 0)
 
         container.classList.remove("invert-container");
-        laughButton.classList.remove("invert-laugh");
+        text.classList.remove("invert-text");
         invertButton.classList.remove("invert-invert");
-        laughButton.innerHTML = "אנא צחק";
+        text.innerHTML = "אנא צחק";
 
         localStorage.setItem("isInvert", "false");
     } else {
@@ -298,9 +298,9 @@ function setInvertedTheme(isInvert) {
         ctx.drawImage(currentFrame, 0, 0)
 
         container.classList.add("invert-container");
-        laughButton.classList.add("invert-laugh");
+        text.classList.add("invert-text");
         invertButton.classList.add("invert-invert");
-        laughButton.innerHTML = "אל נא צחק";
+        text.innerHTML = "אל נא צחק";
 
         localStorage.setItem("isInvert", "true");
     }

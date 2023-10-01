@@ -13,34 +13,25 @@ body {
     width: 100vw;
 }
 
+.canvas-container {
+    padding: 20vh 0;
+}
+
 .responsive-canvas {
     display: block;
     height: 60vh;
-    padding: 20vh 0;
     margin: 0 auto;
+    cursor: pointer;
 }
 
-.laugh-button {
+.text {
     position: absolute;
     bottom: 7vh;
     left: 0;
     right: 0;
-    border: none;
-    background: none;
     text-align: center;
     font-size: 6vh;
-    cursor: pointer;
     user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.laugh-button:focus {
-    outline: 0;
-}
-
-.laugh-button:active {
-    color: #00fff7;
-    cursor: help;
 }
 
 .invert-button {
@@ -70,11 +61,6 @@ body {
         height: 30vh;
         padding: 35vh 0;
     }
-
-    .laugh-button {
-        position: absolute;
-        bottom: 14vh;
-    }
 }
 
 
@@ -83,14 +69,10 @@ body {
     background: black;
 }
 
-.invert-laugh {
+.invert-text {
     color: #077339;
 }
 
 .invert-invert {
     color: #925e93;
-}
-
-.hidden-images {
-    visibility: hidden;
 }
