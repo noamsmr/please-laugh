@@ -6,6 +6,20 @@ body {
     margin: 0;
 }
 
+.container {
+    position: relative;
+    margin: 0 auto;
+    height: 100vh;
+    width: 100vw;
+}
+
+.responsive-canvas {
+    display: block;
+    height: 60vh;
+    padding: 20vh 0;
+    margin: 0 auto;
+}
+
 .laugh-button {
     position: absolute;
     bottom: 7vh;
@@ -17,11 +31,11 @@ body {
     font-size: 6vh;
     cursor: pointer;
     user-select: none;
-
+    -webkit-tap-highlight-color: transparent;
 }
 
 .laugh-button:focus {
-    outline:0;
+    outline: 0;
 }
 
 .laugh-button:active {
@@ -29,22 +43,41 @@ body {
     cursor: help;
 }
 
-.responsive-canvas {
-    display: block;
-    height: 60vh;
-    margin: 20vh auto;
+.invert-button {
+    position: absolute;
+    margin: auto;
+    top: 50px;
+    right: 50px;
+    border: none;
+    background: none;
+    color: black;
+    text-align: center;
+    font-size: 2vh;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.invert-button:focus {
+    outline: 0;
+}
+
+.invert {
+    background: black;
+    color: #1a911e;
 }
 
 
 
+
 @media (max-width: 600px) {
+    .responsive-canvas {
+        height: 30vh;
+        padding: 35vh 0;
+    }
+
     .laugh-button {
         position: absolute;
         bottom: 14vh;
-    }
-
-    .responsive-canvas {
-        height: 30vh;
-        margin: 35vh auto;
     }
 }
