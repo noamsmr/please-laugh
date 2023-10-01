@@ -22,6 +22,11 @@ body {
     height: 60vh;
     margin: 0 auto;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.responsive-canvas:focus {
+    outline: 0;
 }
 
 .responsive-canvas:active {
