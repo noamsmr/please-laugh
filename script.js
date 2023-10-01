@@ -236,16 +236,18 @@ invertButton.addEventListener("click", () => {
         ctx.filter = 'none'
         ctx.drawImage(img, 0, 0)
 
-        container.classList.remove("invert");
-        laughButton.classList.remove("invert");
-        invertButton.classList.remove("invert");
+        container.classList.remove("invert-container");
+        laughButton.classList.remove("invert-laugh");
+        invertButton.classList.remove("invert-invert");
+        laughButton.innerHTML = "אנא צחק";
     } else {
         ctx.filter = 'invert(1)'
         ctx.drawImage(img, 0, 0)
 
-        container.classList.add("invert");
-        laughButton.classList.add("invert");
-        invertButton.classList.add("invert");
+        container.classList.add("invert-container");
+        laughButton.classList.add("invert-laugh");
+        invertButton.classList.add("invert-invert");
+        laughButton.innerHTML = "אל-נא צחק";
     }
 
 

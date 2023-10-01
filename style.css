@@ -62,11 +62,6 @@ body {
     outline: 0;
 }
 
-.invert {
-    background: black;
-    color: #1a911e;
-}
-
 
 
 
@@ -80,4 +75,18 @@ body {
         position: absolute;
         bottom: 14vh;
     }
+}
+
+
+
+.invert-container {
+    background: black;
+}
+
+.invert-laugh {
+    color: #077339;
+}
+
+.invert-invert {
+    color: #925e93;
 }
