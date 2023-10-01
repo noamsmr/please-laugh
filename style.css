@@ -67,6 +67,9 @@ body {
     .responsive-canvas {
         height: 30vh;
     }
+    .text {
+        bottom: 14.5vh;
+    }
 }
 
 
