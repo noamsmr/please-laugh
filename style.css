@@ -90,3 +90,7 @@ body {
 .invert-invert {
     color: #925e93;
 }
+
+.hidden-images {
+    visibility: hidden;
+}

@@ -1,32 +1,65 @@
 let isInvert = false;
+let isAudioInit = false;
+let isAnimationInit = false;
+let sampleBuffer;
+let currentAudio;
+let previousAudio;
+const AUDIO_FADE_OUT_LENGTH = 2;
+const BUFFER_MULTIPLIER = 1;
+const audios = []
+
+const FIRST_FRAME = 0;
+const NUMBER_OF_FRAMES = 20;
+const ANIMATION_TIMEOUT = 0; // 0 => no timeout
+const compressionFunction = (x) => 0.23 * Math.pow(x, 1/4)
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let frameNumber = 0;
+let start, previousTimeStamp;
+let elapsedFrameDelay = 0;
+let previousFrameNember = 0;
+const happyFrames = []
+const sadFrames = []
+let currentFrame;
+const laughButton = document.querySelector("#laugh-button");
+const invertButton = document.querySelector("#invert-button");
+const container = document.querySelector("#container");
+loadAudioFiles();
+loadImageFiles();
+
+window.onload = function() {
+    currentFrame = happyFrames[0];
+
+    isInvert = JSON.parse(localStorage.getItem("isInvert"));
+    if (isInvert === null) { return }
+
+    
+    setInvertedTheme(isInvert);
+    
+    setTimeout(() => { window.scrollTo(0, 1) }, 0);
+    
+    
+    happyFrames[0].onload = () => {
+        window.requestAnimationFrame(() => {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.drawImage(currentFrame, 0, 0);
+        });
+    }
+}
+
+
 
 
 // --- Audio ---
 
-const AUDIO_FADE_OUT_LENGTH = 2;
-const BUFFER_MULTIPLIER = 1;
-const audios = [
-    new Audio('audio/laugh1.mp3'),
-    new Audio('audio/laugh2.mp3'),
-    new Audio('audio/laugh3.mp3'),
-    new Audio('audio/laugh4.mp3'),
-    new Audio('audio/laugh5.mp3'),
-    new Audio('audio/laugh6.mp3')
-]
-let isAudioCtxInit = false;
-let sampleBuffer;
-let currentAudio;
-let previousAudio;
-
-window.onload = function() {
-    isInvert = JSON.parse(localStorage.getItem("isInvert"));
-    if (isInvert === null) { return }
-    
-    setInvertedTheme(isInvert);
+function loadAudioFiles() {
+    for (let index = 0; index < 6; index++) {
+        audios.push(new Audio(`audio/laugh${index}.mp3`))
+    }
 }
 
-const setupAudioAPIAndAnimation = () => {
-    if (isAudioCtxInit) { return }
+function setupAudioAPI() {
+    if (isAudioInit) { return }
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioCtx.createAnalyser();
@@ -38,10 +71,16 @@ const setupAudioAPIAndAnimation = () => {
         source.connect(analyser);
     });
     analyser.connect(audioCtx.destination);
-
-    window.requestAnimationFrame(step)
     
-    isAudioCtxInit = true;
+    isAudioInit = true;
+}
+
+function startAnimation() {
+    if (isAnimationInit) { return }
+
+    window.requestAnimationFrame(step);
+    
+    isAnimationInit = true;
 }
 
 function play(audio) {
@@ -141,30 +180,22 @@ function getRandomInt(max) {
 
 // --- Animation ---
 
-const NUMBER_OF_FRAMES = 20;
-const ANIMATION_TIMEOUT = 100000;
-const compressionFunction = (x) => 0.23 * Math.pow(x, 1/4)
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const img = new Image;
-let frameNumber = isInvert ? 20 : 0;;
-let start, previousTimeStamp;
-let elapsedFrameDelay = 0;
-let previousFrameNember = 1;
-
-img.onload = function(){
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.drawImage(img, 0, 0);
-};
-
-setImgNum(frameNumber)
+function loadImageFiles() {
+    for (let index = FIRST_FRAME; index < NUMBER_OF_FRAMES; index++) {
+        happyFrames.push(new Image);
+        setTimeout(() => {happyFrames[index].src = `frames/happy_frame_${index}.jpg`});
+    }
+    for (let index = FIRST_FRAME; index < NUMBER_OF_FRAMES; index++) {
+        sadFrames.push(new Image);
+        setTimeout(() => {sadFrames[index].src = `frames/sad_frame_${index}.jpg`});
+    }
+}
 
 function step(timeStamp) {
     if (start === undefined) {
         start = timeStamp;
     }
     const elapsed = timeStamp - start;
-    const firstFrame = isInvert ? 20 : 0;
 
     if (previousTimeStamp !== timeStamp) {
         analyser.getFloatTimeDomainData(sampleBuffer);
@@ -172,56 +203,65 @@ function step(timeStamp) {
         for (let i = 0; i < sampleBuffer.length; i++) {
             sumOfSquares += sampleBuffer[i] ** 2;
         }
-        frameNumber = Math.floor(compressionFunction(sumOfSquares) * NUMBER_OF_FRAMES) + firstFrame;
+        frameNumber = Math.floor(compressionFunction(sumOfSquares) * NUMBER_OF_FRAMES) + FIRST_FRAME;
 
         if (previousFrameNember < frameNumber) {
             elapsedFrameDelay = elapsed + 100;
-            setImgNum(frameNumber);
-            previousFrameNember = frameNumber
+            if (previousFrameNember !== frameNumber) {
+                drawFrame(frameNumber);
+                previousFrameNember = frameNumber;
+            }
         } else if (elapsed > elapsedFrameDelay) {
             elapsedFrameDelay = elapsed + 100;
-            frameNumber = previousFrameNember > firstFrame ? previousFrameNember - 1 : firstFrame;
-            setImgNum(frameNumber);
-            previousFrameNember = frameNumber
+            frameNumber = previousFrameNember > FIRST_FRAME ? previousFrameNember - 1 : FIRST_FRAME;
+            if (previousFrameNember !== frameNumber) {
+                drawFrame(frameNumber);
+                previousFrameNember = frameNumber
+            }
         }
     }
 
-    // if (elapsed < ANIMATION_TIMEOUT) {
+    if (ANIMATION_TIMEOUT === 0 || elapsed < ANIMATION_TIMEOUT) {
         previousTimeStamp = timeStamp;
         window.requestAnimationFrame(step);
-    // }
+    }
 }
 
-function setHappyImgNum(number) {
-    if (number >= NUMBER_OF_FRAMES || number < 0 || number%1 !== 0) {
+function drawHappyFrame(number) {
+    if (number >= FIRST_FRAME + NUMBER_OF_FRAMES || number < FIRST_FRAME || number%1 !== 0) {
         console.warn('No such frame number:', number);
         return;
     }
-    img.src = "frames/happy_frame_" + (number) + ".jpg";
+
+    currentFrame = happyFrames[number];
+
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(currentFrame, 0, 0);
 }
 
-function setSadImgNum(number) {
-    if (number >= NUMBER_OF_FRAMES + 20 || number < 20 || number%1 !== 0) {
+function drawSadFrame(number) {
+    if (number >= FIRST_FRAME + NUMBER_OF_FRAMES || number < FIRST_FRAME || number%1 !== 0) {
         console.warn('No such frame number:', number);
         return;
     }
-    img.src = "frames/sad_frame_" + (number) + ".jpg";
+
+    currentFrame = sadFrames[number];
+
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(currentFrame, 0, 0);
 }
 
-function setImgNum(frameNumber) {
-    return (isInvert ? setSadImgNum : setHappyImgNum)(frameNumber);
+function drawFrame(frameNumber) {
+    return (isInvert ? drawSadFrame : drawHappyFrame)(frameNumber);
 }
 
 
 
 // --- Button listen ---
 
-const laughButton = document.querySelector("#laugh-button");
-const invertButton = document.querySelector("#invert-button");
-const container = document.querySelector(".container");
-
 laughButton.addEventListener("click", (event) => {
-    setupAudioAPIAndAnimation();
+    setupAudioAPI();
+    startAnimation();
 
     const nextAudio = getRandomAudio(previousAudio, currentAudio);
     if (!(currentAudio == nextAudio)) {
@@ -245,7 +285,7 @@ function setInvertedTheme(isInvert) {
     if (!isInvert) {
         previousFrameNember = 0
         ctx.filter = 'none'
-        ctx.drawImage(img, 0, 0)
+        ctx.drawImage(currentFrame, 0, 0)
 
         container.classList.remove("invert-container");
         laughButton.classList.remove("invert-laugh");
@@ -255,7 +295,7 @@ function setInvertedTheme(isInvert) {
         localStorage.setItem("isInvert", "false");
     } else {
         ctx.filter = 'invert(1)'
-        ctx.drawImage(img, 0, 0)
+        ctx.drawImage(currentFrame, 0, 0)
 
         container.classList.add("invert-container");
         laughButton.classList.add("invert-laugh");
