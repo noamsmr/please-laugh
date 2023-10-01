@@ -24,6 +24,10 @@ body {
     cursor: pointer;
 }
 
+.responsive-canvas:active {
+    cursor: help;
+}
+
 .text {
     position: absolute;
     bottom: 7vh;
