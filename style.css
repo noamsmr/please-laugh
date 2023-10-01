@@ -61,9 +61,11 @@ body {
 
 
 @media (max-width: 600px) {
+    .canvas-container {
+        padding: 35vh 0;
+    }
     .responsive-canvas {
         height: 30vh;
-        padding: 35vh 0;
     }
 }
 
